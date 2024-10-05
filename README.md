@@ -9,8 +9,8 @@ Dự án JavaWebApp là một ứng dụng web đơn giản được xây dựng
 5. Maven để quản lý dependencies
 # Cài đặt và cấu hình
 ### Yêu cầu hệ thống:
-1. Java JDK (version 11 trở lên)
-2. Apache Tomcat (version 9 hoặc 10)
+1. Java JDK (version 21 trở lên)
+2. Apache Tomcat (version 10)
 3. SQL Server
-4. Maven (nếu sử dụng)
+4. Maven
 5. IDE: IntelliJ IDEA
