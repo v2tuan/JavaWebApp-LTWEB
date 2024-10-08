@@ -7,7 +7,7 @@
 --%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
-<form action="${pageContext.request.contextPath}/admin/category/update" method="post">
+<form action="${pageContext.request.contextPath}/admin/category/update" method="post" enctype="multipart/form-data">
   <input type="text" id="categoryid" name="categoryid" value="${cate.categoryId}" hidden="hidden"><br>
   <label for="categoryname">Category name:</label><br>
   <input type="text" id="categoryname" name="categoryname" value="${cate.categoryName}"><br>
@@ -18,8 +18,8 @@
   <c:if test="${cate.image.substring(0, 5) == 'https'}">
     <c:url value="${cate.image}" var="imgUrl"></c:url>
   </c:if>
-  <img height="200" width="200" src="${imgUrl}" />
-  <input type="file" id="image" name="image" value="${cate.image}"><br><br>
+  <img id = "images" height="200" width="200" src="${imgUrl}" />
+  <input type="file" onchange="chooseFile(this)" id="image" name="image" value="${cate.image}"><br><br>
   <label for="status">Status:</label><br>
   <input type="text" id="status" name="status" value="${cate.status}"><br><br>
   <input type="submit" value="Submit">

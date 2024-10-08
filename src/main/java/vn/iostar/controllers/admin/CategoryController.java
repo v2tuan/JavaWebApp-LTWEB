@@ -1,16 +1,25 @@
 package vn.iostar.controllers.admin;
 
 import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.Part;
 import vn.iostar.models.CategoryModel;
 import vn.iostar.services.ICategoryService;
 import vn.iostar.services.impl.CategoryServiceImpl;
+import static vn.iostar.utils.Constant.*;
+
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.List;
 
+@MultipartConfig(fileSizeThreshold = 1024 * 1024,
+        maxFileSize = 1024 * 1024 * 5,
+        maxRequestSize = 1024 * 1024 * 5 * 5)
 @WebServlet(urlPatterns = {"/admin/categories",
         "/admin/category/add",
         "/admin/category/insert",
@@ -54,16 +63,38 @@ public class CategoryController extends HttpServlet {
         req.setCharacterEncoding("UTF-8");
         resp.setCharacterEncoding("UTF-8");
         if (url.contains("insert")) {
+            CategoryModel category = new CategoryModel();
             String categoryName = req.getParameter("categoryname");
             String status = req.getParameter("status");
             int statuss = Integer.parseInt(status);
-            String image = "https://www.apple.com/newsroom/images/2024/09/apple-introduces-iphone-16-and-iphone-16-plus/article/geo/Apple-iPhone-16-finish-lineup-geo-240909_big.jpg.medium_2x.jpg";
-
-            CategoryModel category = new CategoryModel();
             category.setCategoryName(categoryName);
-            category.setImage(image);
             category.setStatus(statuss);
+            String fname="";
+            String uploadPath = DIR; // vì import static nên không cần Constant.DIR
+            File uploadDir = new File(uploadPath);
+            if (!uploadDir.exists()) {
+                uploadDir.mkdir();
+            }
+            try {
+                Part part = req.getPart("image");
+                if (part.getSize() > 0) {
+                    String fileName = Paths.get(part.getSubmittedFileName()).getFileName().toString();
+                    // Doi ten file
+                    int index = fileName.lastIndexOf(".");
+                    String ext = fileName.substring(index + 1);
+                    fname = System.currentTimeMillis() + "." + ext;
+                    // upload file
+                    part.write(uploadPath + "/" +fname);
 
+                    // ghi ten file vao data
+                    category.setImage(fname);
+                }
+                else{
+                    category.setImage("avata.png");
+                }
+            }catch (Exception e) {
+                e.printStackTrace();
+            }
             categoryService.insert(category);
             resp.sendRedirect(req.getContextPath() + "/admin/categories");
         }
@@ -72,14 +103,42 @@ public class CategoryController extends HttpServlet {
             String categoryName = req.getParameter("categoryname");
             String status = req.getParameter("status");
             int statuss = Integer.parseInt(status);
-            String image = "https://www.apple.com/newsroom/images/2024/09/apple-introduces-iphone-16-and-iphone-16-plus/article/geo/Apple-iPhone-16-finish-lineup-geo-240909_big.jpg.medium_2x.jpg";
 
             CategoryModel category = new CategoryModel();
             category.setCategoryId(id);
             category.setCategoryName(categoryName);
-            category.setImage(image);
             category.setStatus(statuss);
 
+            // luu hinh anh cu
+            CategoryModel cateold = categoryService.findById(id);
+            String fileld = cateold.getImage();
+            // xu ly image
+            String fname="";
+            String uploadPath = DIR; // vì import static nên không cần Constant.DIR
+            File uploadDir = new File(uploadPath);
+            if (!uploadDir.exists()) {
+                uploadDir.mkdir();
+            }
+            try {
+                Part part = req.getPart("image");
+                if (part.getSize() > 0) {
+                    String fileName = Paths.get(part.getSubmittedFileName()).getFileName().toString();
+                    // Doi ten file
+                    int index = fileName.lastIndexOf(".");
+                    String ext = fileName.substring(index + 1);
+                    fname = System.currentTimeMillis() + "." + ext;
+                    // upload file
+                    part.write(uploadPath + "/" +fname);
+
+                    // ghi ten file vao data
+                    category.setImage(fname);
+                }
+                else{
+                    category.setImage(fileld);
+                }
+            }catch (Exception e) {
+                e.printStackTrace();
+            }
             categoryService.update(category);
             resp.sendRedirect(req.getContextPath() + "/admin/categories");
         }
